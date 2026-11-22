@@ -107,7 +107,7 @@ void cf_chord_defaults(cf_chord_cfg_t *cfg)
     static const cf_form_t TOP[CF_TOP_NBTN] = {
         {CF_T_MAJ, CF_A_6, 0, 0}, {CF_T_MAJ, CF_A_7, 0, 0}, {CF_T_MAJ, CF_A_9, 0, 0},
         {CF_T_SUS2, 0, 0, 0}, {CF_T_SUS4, 0, 0, 0},
-        {CF_T_MIN, CF_A_6, 0, 0}, {CF_T_MIN, CF_A_b7, 0, 0}, {CF_T_MIN, CF_A_9, 0, 0},
+        {CF_T_MIN, CF_A_b7, 0, 0}, {CF_T_MIN, CF_A_9, 0, 0}, {CF_T_DIM, 0, 0, 0},
         {CF_T_MAJ, 0, 0, 0}, {CF_T_MIN, 0, 0, 0},
         {CF_T_NONE, CF_OFF_ADD, 0, 0},
     };

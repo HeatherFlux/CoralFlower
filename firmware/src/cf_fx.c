@@ -156,6 +156,7 @@ static struct {
     int32_t pdep, px[2][6], py[2][6], pfb[2];
     int32_t wg[CFX_N], wt[CFX_N];    /* each effect's wet gain now and set (Q15, eased a block at a time) */
     int32_t m[CTL], wl[CTL], wr[CTL];
+    uint8_t dl_sync;
 } cfx __attribute__((section(".pool")));
 
 #define CFX_MUL(a, b, sh) ((int32_t)(((int64_t)(a) * (b)) >> (sh)))
@@ -191,9 +192,11 @@ static void cfx_coefs(void)
     cfx.fg_t = CFX_G[f[1] > 99u ? 99u : f[1]];
     cfx.fk = CFX_K[f[2] > 100u ? 100u : f[2]];
     cv_coefs(t, rv[1]);
-    xfp[XP_DSYNC] = 0;                                  /* the stock delay's time is free, in ms */
+    xfp[XP_DSYNC] = (int16_t)cfx.dl_sync;               /* 0 ms, 1 BPM-synced */
     xfp[XP_DMODE] = 1;                                  /* ping-pong */
     xfp[XP_DTIME] = (int16_t)(dl[0] * 127u / 100u);
+    if (cfx.dl_sync)
+        xfp[XP_DDIV] = (int16_t)((dl[0] * 12u + 50u) / 100u);
     xfp[XP_DFDBK] = (int16_t)(dl[1] * 118u / 100u);     /* (to 0.92: a long tail, never a runaway) */
     song.g[G_CRATE] = (int16_t)(8 + ch[0] * 100u / 100u);
     song.g[G_CDEPTH] = (int16_t)(ch[1] * 127u / 100u);

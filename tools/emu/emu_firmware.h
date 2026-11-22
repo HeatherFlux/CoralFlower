@@ -110,6 +110,7 @@ static void cf_fx_chain(int32_t *l, int32_t *r, uint32_t n);
 
 /* ------------------------------------------------------- the emulator HAL --- */
 #include "emu_hal_fw.h"
+#include "../../firmware/src/cf_gran.c"          /* (as coralflower.c: the granular layer, run first by cf_fx_chain) */
 #include "../../firmware/src/cf_fx.c"
 /* ------------------------------------------------- the instrument --- */
 #define CF_UNIT 1

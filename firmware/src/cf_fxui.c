@@ -60,7 +60,15 @@ static void cfx_knob_info(int knob, cf_knob_t *o)
         cfx_hz(o->val, CFX_HZ[v[1] > 99u ? 99u : v[1]]);
         o->bar = (int16_t)(v[1] * 255 / 99);
     } else if (e == CFX_DELAY && k == 0) {
-        kint(o->val, (int)xf_ms(v[0] * 127u / 100u), " ms");
+        if (cfx.dl_sync) {
+            static const char *const DIV_NAMES[] = {"1/32","1/32t","1/16","1/16t","1/8","1/8t","1/4","1/4t","1/2","1/2t","1/1","1/1.","2/1"};
+            uint32_t di = v[0] * 12u / 100u;
+            kfmt(o->name, 12, "SYNC DIV");
+            kfmt(o->val, 14, di < 13u ? DIV_NAMES[di] : "?");
+            o->bar = (int16_t)(v[0] * 255 / 100);
+        } else {
+            kint(o->val, (int)xf_ms(v[0] * 127u / 100u), " ms");
+        }
     } else if (e == CFX_CHORUS && k == 0) {
         cfx_rate(o->val, LFO_HZ_X100[(8u + v[0]) & 127u]);
     } else if (e == CFX_PHASER && k == 0) {
@@ -75,9 +83,17 @@ static void cfx_knob_turn(int knob, int d)
     uint32_t e = cfx_sel();
     uint8_t *v = cs.fx.v[e];
     int k = knob - 1;
-    if (knob == 0)
-        cs.fx.on = (uint8_t)(d > 0 ? cs.fx.on | (1u << e) : cs.fx.on & ~(1u << e));
-    else if (k == 0 && (e == CFX_FILTER || e == CFX_REVERB))
+    if (knob == 0) {
+        if (e == CFX_DELAY && d > 0 && cfx_is_on(e)) {
+            cfx.dl_sync = (uint8_t)!cfx.dl_sync;
+            cf_fx_apply(&cs.fx);
+        } else if (e == CFX_DELAY && d < 0 && !cfx_is_on(e)) {
+            cfx.dl_sync = 0;
+            cs.fx.on = (uint8_t)(cs.fx.on | (1u << e));
+        } else {
+            cs.fx.on = (uint8_t)(d > 0 ? cs.fx.on | (1u << e) : cs.fx.on & ~(1u << e));
+        }
+    } else if (k == 0 && (e == CFX_FILTER || e == CFX_REVERB))
         v[0] = (uint8_t)clampi(v[0] + (d > 0 ? 1 : -1), 0, 2);
     else
         v[k] = (uint8_t)clampi(v[k] + d, 0, e == CFX_FILTER && k == 1 ? 99 : 100);
